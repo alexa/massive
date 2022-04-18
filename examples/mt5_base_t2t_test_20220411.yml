@@ -1,0 +1,55 @@
+
+run_name: &run_name mt5_base_test_20220411
+max_length: &max_length 512
+
+model:
+  type: mt5 for conditional generation
+  checkpoint: /PATH/TO/CHECKPOINTS/mt5_base_20220411/checkpoint-45880/
+
+tokenizer:
+  type: mt5
+  tok_args:
+    vocab_file: /PATH/TO/PRETRAINED/MODELS/mt5-base/spiece.model
+    max_len: *max_length
+
+collator:
+  type: massive text to text intent class slot fill
+  args:
+    max_length: *max_length
+    padding: longest
+    t2t_args:
+      input_prompt: "Annotate: " # set to false for no prompt
+      use_output_descrip: false
+      intent_first: false
+      slots_mixed: false
+      toks_in_output: false
+      sentinels: false
+      inside_format: slot_name
+      outside_label: Other
+
+test:
+  trainer: massive s2s
+  test_dataset: /PATH/TO/TESTDATA
+  intent_labels: /PATH/TO/INTENTMAP
+  slot_labels: /PATH/TO/SLOTMAP
+  massive_path: /PATH/TO/RAW/MASSIVE/
+  slot_labels_ignore:
+    - Other
+  eval_metrics: all
+  #predictions_file: /PATH/TO/LOGS/mt5_base_20220411/preds_km-KH.jsonl
+  trainer_args:
+    output_dir: /PATH/TO/CHECKPOINTS/mt5_base_20220411/
+    per_device_eval_batch_size: 32
+    eval_accumulation_steps: 1
+    remove_unused_columns: false
+    label_names:
+      - intent_num
+      - slots_num
+    log_level: info
+    logging_strategy: no
+    #locale_eval_strategy: all only
+    locale_eval_strategy: all and each
+    predict_with_generate: true
+    generation_max_length: *max_length
+    generation_num_beams: 2
+    disable_tqdm: false

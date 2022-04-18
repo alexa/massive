@@ -1,0 +1,38 @@
+run_name: &run_name mt5_base_ic_sf_optimized_20220411_test
+max_length: &max_length 512
+
+model:
+  type: mt5 intent classification slot filling encoder only
+  checkpoint: /home/ec2-user/workspaces/centurion_modeling/optimized_run_all_and_each_20220411/checkpoint-3800/
+
+tokenizer:
+  type: mt5
+  tok_args:
+    vocab_file: /PATH/TO/PRETRAINED/MODELS/mt5-base-sentencepiece.bpe.model
+    max_len: *max_length
+
+collator:
+  type: massive intent class slot fill
+  args:
+    max_length: *max_length
+    padding: longest
+
+test:
+  test_dataset: /PATH/TO/TESTDATA
+  intent_labels: /PATH/TO/INTENTMAP
+  slot_labels: /PATH/TO/SLOTMAP
+  massive_path: /PATH/TO/RAW/MASSIVE/
+  slot_labels_ignore:
+    - Other
+  eval_metrics: all
+  trainer_args:
+    output_dir: /home/ec2-user/workspaces/centurion_modeling/checkpoints/mt5_base_ic_sf_optimized_20220411_test/
+    per_device_eval_batch_size: 64
+    eval_accumulation_steps: 4
+    remove_unused_columns: false
+    label_names:
+      - intent_num
+      - slots_num
+    logging_strategy: no
+    locale_eval_strategy: all and each
+    disable_tqdm: false

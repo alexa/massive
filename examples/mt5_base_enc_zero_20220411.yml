@@ -1,0 +1,87 @@
+run_name: &run_name mt5_base_ic_sf_zs_20220411
+max_length: &max_length 512
+
+model:
+  type: mt5 intent classification slot filling encoder only
+  size: base
+  pretrained_weights: /PATH/TO/PRETRAINED/MODELS/mt5-base.bin
+  strict_load_pretrained_weights: false
+  pretrained_weight_prepend: mt5.
+
+  model_config_args:
+    d_ff: 2048
+    d_kv: 64
+    d_model: 768
+    decoder_start_token_id: 0
+    dropout_rate: 0.1
+    eos_token_id: 1
+    feed_forward_proj: gated-gelu
+    initializer_factor: 1.0
+    is_encoder_decoder: true
+    layer_norm_epsilon: 1e-06
+    model_type: mt5
+    num_decoder_layers: 12
+    num_heads: 12
+    num_layers: 12
+    output_past: True
+    pad_token_id: 0
+    relative_attention_num_buckets: 32
+    tie_word_embeddings: false
+    use_cache: True
+    vocab_size: 250112
+    use_crf: false
+    slot_loss_coef: 4.0
+    hidden_dropout_prob: 0.2
+    hidden_layer_for_class: 8
+    head_num_layers: 3
+    head_layer_dim: 2048
+    head_intent_pooling: mean
+    attention_probs_dropout_prob: 0.4
+    freeze_layers: mt5.shared.weight
+
+tokenizer:
+  type: mt5
+  tok_args:
+    vocab_file: /PATH/TO/PRETRAINED/MODELS/mt5-base-sentencepiece.bpe.model
+    max_len: *max_length
+
+collator:
+  type: massive intent class slot fill
+  args:
+    max_length: *max_length
+    padding: longest
+
+train_val:
+  train_dataset: /PATH/TO/TRAINDATA
+  train_locales: en-US
+  dev_dataset: /PATH/TO/DEVDATA
+  intent_labels: /PATH/TO/INTENTMAP
+  slot_labels: /PATH/TO/SLOTMAP
+  slot_labels_ignore:
+    - Other
+  eval_metrics: all
+  trainer_args:
+    output_dir: /home/ec2-user/workspaces/centurion_modeling/mt5_base_zs_optimized_20220411/
+    evaluation_strategy: steps
+    eval_steps: 100
+    eval_accumulation_steps: 4
+    learning_rate: 6.19e-05
+    warmup_steps: 700
+    gradient_accumulation_steps: 4 #32 #This was divided by num_gpus for final run
+    per_device_train_batch_size: 16
+    per_device_eval_batch_size: 64
+    num_train_epochs: 300
+    weight_decay: 0.35
+    remove_unused_columns: false
+    label_names:
+      - intent_num
+      - slots_num
+    logging_steps: 100
+    log_level: info
+    save_strategy: steps
+    save_steps: 100
+    locale_eval_strategy: all and each
+    adam_beta1: 0.8
+    adam_beta2: 0.9999
+    adam_epsilon: 1e-8
+    lr_scheduler_type: linear

@@ -1,0 +1,78 @@
+
+run_name: &run_name xlmr_base_20220411
+max_length: &max_length 512
+
+model:
+  type: xlmr intent classification slot filling
+  size: base
+  pretrained_weights: /PATH/TO/PRETRAINED/MODELS/xlm-roberta-base.bin
+  pretrained_weight_substring_transform: ['roberta', 'xlmr']
+  strict_load_pretrained_weights: false
+  model_config_args:
+    attention_probs_dropout_prob: 0.0
+    bos_token_id: 0
+    eos_token_id: 2
+    hidden_act: gelu
+    hidden_dropout_prob: 0.45
+    hidden_size: 768
+    initializer_range: 0.02
+    intermediate_size: 3072
+    layer_norm_eps: 1e-05
+    max_position_embeddings: 514
+    num_attention_heads: 12
+    num_hidden_layers: 12
+    output_past: true
+    pad_token_id: 1
+    type_vocab_size: 1
+    vocab_size: 250002
+    use_crf: false
+    slot_loss_coef: 4.0
+    hidden_layer_for_class: 11
+    head_num_layers: 1
+    head_layer_dim: 2048
+    head_intent_pooling: max
+
+tokenizer:
+  type: xlmr base
+  tok_args:
+    vocab_file: /PATH/TO/PRETRAINED/MODELS/xlm-roberta-base-sentencepiece.bpe.model
+    max_len: *max_length
+
+collator:
+  type: massive intent class slot fill
+  args:
+    max_length: *max_length
+    padding: longest
+
+train_val:
+  train_dataset: /PATH/TO/TRAINDATA
+  dev_dataset: /PATH/TO/DEVDATA
+  intent_labels: /PATH/TO/INTENTMAP
+  slot_labels: /PATH/TO/SLOTMAP
+  slot_labels_ignore:
+    - Other
+  eval_metrics: all
+  trainer_args:
+    output_dir: /PATH/TO/CHECKPOINTS/xlmr_base_20220411/
+    logging_dir: /data/jgmf-sandbox/tensorboard/xlmr_base_20220411/
+    save_strategy: epoch
+    evaluation_strategy: epoch
+    learning_rate: 2.8e-05
+    lr_scheduler_type: constant_with_warmup
+    warmup_steps: 800
+    adam_beta1: 0.9
+    adam_beta2: 0.9999
+    adam_epsilon: 1.0e-08
+    weight_decay: 0.21
+    gradient_accumulation_steps: 1
+    per_device_train_batch_size: 128
+    per_device_eval_batch_size: 128
+    num_train_epochs: 26
+    remove_unused_columns: false
+    label_names:
+      - intent_num
+      - slots_num
+    logging_steps: 100
+    log_level: info
+    locale_eval_strategy: all and each
+    disable_tqdm: false

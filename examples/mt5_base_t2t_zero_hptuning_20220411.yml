@@ -1,0 +1,151 @@
+
+run_name: &run_name mt5_base_hp_20220411
+max_length: &max_length 512
+
+model:
+  type: mt5 for conditional generation
+  size: base
+  pretrained_weights: /PATH/TO/PRETRAINED/MODELS/mt5-base/pytorch_model.bin
+  strict_load_pretrained_weights: true
+  model_config_args:
+    d_ff: 2048
+    d_kv: 64
+    d_model: 768
+    decoder_start_token_id: 0
+    dropout_rate: 0.1
+    eos_token_id: 1
+    feed_forward_proj: gated-gelu
+    initializer_factor: 1.0
+    is_encoder_decoder: true
+    layer_norm_epsilon: 1e-06
+    model_type: mt5
+    num_decoder_layers: 12
+    num_heads: 12
+    num_layers: 12
+    output_past: true
+    pad_token_id: 0
+    relative_attention_num_buckets: 32
+    tie_word_embeddings: false
+    use_cache: true
+    vocab_size: 250112
+    freeze_layers: shared.weight
+
+tokenizer:
+  type: mt5
+  tok_args:
+    vocab_file: /PATH/TO/PRETRAINED/MODELS/mt5-base/spiece.model
+    max_len: *max_length
+
+collator:
+  type: massive text to text intent class slot fill
+  args:
+    max_length: *max_length
+    padding: longest
+    input_prompt: "Annotate: " # set to false for no prompt
+    use_output_descrip: false
+    intent_first: false
+    slots_mixed: false
+    toks_in_output: false
+
+train_val:
+  trainer: massive s2s
+  train_dataset: /PATH/TO/TRAINDATA
+  train_locales: en-US
+  dev_dataset: /PATH/TO/DEVDATA
+  dev_shorten_to: 2000
+  intent_labels: /PATH/TO/INTENTMAP
+  slot_labels: /PATH/TO/SLOTMAP
+  slot_labels_ignore_f1:
+    - Other
+  eval_metrics: ex_match_acc
+  trainer_args:
+    output_dir: /PATH/TO/LOGS/mt5_base_hp_20220411/
+    evaluation_strategy: steps
+    eval_steps: 500
+    eval_accumulation_steps: 1
+    learning_rate: 1e-3
+    warmup_steps: 100
+    gradient_accumulation_steps: 32
+    per_device_train_batch_size: 8
+    per_device_eval_batch_size: 32
+    num_train_epochs: 10
+    weight_decay: 0.01
+    remove_unused_columns: false
+    logging_steps: 100
+    log_level: info
+    save_strategy: no
+    locale_eval_strategy: all only # all and each
+    predict_with_generate: true
+    generation_max_length: *max_length
+    generation_num_beams: 1
+    disable_tqdm: true
+
+hpo_args:
+  search_alg:
+    # for available values of 'type' see SEARCH_ALG_IMPORT at ray.tune.suggest.__init__.py
+    type: hyperopt
+  hp_space:
+    # This is the "config" for ray.tune
+    # For PopulationBasedTraining, it will start with these vals then perturb later
+    - hp: learning_rate
+      type: qloguniform
+      args: [1e-7, 1e-3, 1e-7]
+    - hp: weight_decay
+      type: quniform
+      args: [0.0, 0.5, 0.01]
+#    - hp: per_device_train_batch_size
+#      type: choice
+#      args: [1, 2, 4, 8]
+    - hp: gradient_accumulation_steps
+      type: choice
+      args: [4, 8, 16, 32, 64]
+    - hp: model.model_config_args.dropout_rate
+      type: quniform
+      args: [0.0, 0.5, 0.05]
+    - hp: lr_scheduler_type
+      type: choice
+      args: ['linear', 'constant_with_warmup']
+    - hp: warmup_steps
+      type: quniform
+      args: [0, 1000, 100]
+    - hp: num_train_epochs
+      type: quniform
+      args: [50, 1500, 50]
+    - hp: adam_beta1
+      type: choice
+      args: [0.8, 0.9, 0.99]
+    - hp: adam_beta2
+      type: choice
+      args: [0.95, 0.99, 0.999, 0.9999]
+    - hp: adam_epsilon
+      type: choice
+      args: [1e-6, 1e-7, 1e-8, 1e-9]
+    - hp: generation_num_beams
+      type: choice
+      args: [1, 2, 3]
+    - hp: model.model_config_args.freeze_layers
+      type: choice
+      args:
+        # single string for all layers, comma-separated, no spaces
+        - shared.weight
+        - shared.weight,lm_head.weight
+        - '' # No freezing
+  backend: ray
+  n_trials: 1024
+  max_concurrent_trials: 8
+  metric: eval_all_ex_match_acc
+  mode: max
+  direction: maximize
+  resources_per_trial:
+    cpu: 1
+    gpu: 1
+  scheduler:
+    type: AsyncHyperBandScheduler
+    # Units are eval_steps from trainer args
+    grace_period: 3
+  keep_checkpoints_num: 0
+  checkpoint_score_attr: training_iteration
+  local_dir: /PATH/TO/CHECKPOINTS/mt5_base_hp_20220411/hpo/
+  name: *run_name
+  log_to_file: true
+

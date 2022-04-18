@@ -1,0 +1,165 @@
+run_name: &run_name mt5_base_ic_sf_zs_hpo_20220411
+max_length: &max_length 512
+
+model:
+  type: mt5 intent classification slot filling encoder only
+  size: base
+  pretrained_weights: /PATH/TO/PRETRAINED/MODELS/mt5-base.bin
+  strict_load_pretrained_weights: false
+  pretrained_weights_prepend: mt5.
+
+  model_config_args:
+    d_ff: 2048
+    d_kv: 64
+    d_model: 768
+    decoder_start_token_id: 0
+    dropout_rate: 0.1
+    eos_token_id: 1
+    feed_forward_proj: gated-gelu
+    initializer_factor: 1.0
+    is_encoder_decoder: true
+    layer_norm_epsilon: 1e-06
+    model_type: mt5
+    num_decoder_layers: 12
+    num_heads: 12
+    num_layers: 12
+    output_past: True
+    pad_token_id: 0
+    relative_attention_num_buckets: 32
+    tie_word_embeddings: false
+    use_cache: True
+    vocab_size: 250112
+    use_crf: false
+    slot_loss_coef: 2.0
+    hidden_dropout_prob: 0.05
+    hidden_layer_for_class: 7
+    head_num_layers: 1
+    head_layer_dim: 1024
+    head_intent_pooling: mean
+    attention_probs_dropout_prob: 0.1
+
+tokenizer:
+  type: mt5
+  tok_args:
+    vocab_file: /PATH/TO/PRETRAINED/MODELS/mt5-base-sentencepiece.bpe.model
+    max_len: *max_length
+
+collator:
+  type: massive intent class slot fill
+  args:
+    max_length: *max_length
+    padding: longest
+
+train_val:
+  train_dataset: /PATH/TO/TRAINDATA
+  train_locales: en-US
+  dev_dataset: /PATH/TO/DEVDATA
+  intent_labels: /PATH/TO/INTENTMAP
+  slot_labels: /PATH/TO/SLOTMAP
+  slot_labels_ignore:
+    - Other
+  eval_metrics: all
+  trainer_args:
+    output_dir: /home/ec2-user/workspaces/centurion_modeling/mt5_base_zs_20220411/
+    evaluation_strategy: steps
+    eval_steps: 250
+    eval_accumulation_steps: 4
+    learning_rate: 3.79e-4
+    warmup_steps: 400
+    gradient_accumulation_steps: 16
+    per_device_train_batch_size: 32
+    per_device_eval_batch_size: 64
+#    num_train_epochs: 28
+    weight_decay: 0.47
+    remove_unused_columns: false
+    label_names:
+      - intent_num
+      - slots_num
+    logging_steps: 100
+    log_level: info
+    save_strategy: no
+    locale_eval_strategy: all only
+    adam_beta1: 0.8
+    adam_beta2: 0.999
+    adam_epsilon: 1e-7
+    lr_scheduler_type: constant_with_warmup
+    disable_tqdm: true
+
+hpo_args:
+  search_alg:
+    # for available values of 'type' see SEARCH_ALG_IMPORT at ray.tune.suggest.__init__.py
+    type: hyperopt
+  hp_space:
+    # This is the "config" for ray.tune
+    # For PopulationBasedTraining, it will start with these vals then perturb later
+    - hp: learning_rate
+      type: qloguniform
+      args: [1e-7, 1e-3, 1e-7]
+    - hp: weight_decay
+      type: quniform
+      args: [0.0, 0.5, 0.01]
+    - hp: gradient_accumulation_steps
+      type: choice
+      args: [4, 8, 16, 32, 64]
+    - hp: model.model_config_args.hidden_dropout_prob
+      type: quniform
+      args: [0.0, 0.5, 0.05]
+    - hp: model.model_config_args.attention_probs_dropout_prob
+      type: quniform
+      args: [0.0, 0.5, 0.05]
+    - hp: lr_scheduler_type
+      type: choice
+      args: ['linear', 'constant_with_warmup']
+    - hp: warmup_steps
+      type: quniform
+      args: [0, 1000, 100]
+    - hp: num_train_epochs
+      type: quniform
+      args: [30, 1500, 10]
+    - hp: adam_beta1
+      type: choice
+      args: [0.8, 0.9, 0.99]
+    - hp: adam_beta2
+      type: choice
+      args: [0.95, 0.99, 0.999, 0.9999]
+    - hp: adam_epsilon
+      type: choice
+      args: [1e-6, 1e-7, 1e-8, 1e-9]
+    - hp: model.model_config_args.slot_loss_coef
+      type: choice
+      args: [0.5, 1.0, 2.0, 4.0, 8.0, 16.0]
+    - hp: model.model_config_args.hidden_layer_for_class
+      type: choice
+      args: [7, 8, 9, 10, 11]
+    - hp: model.model_config_args.head_num_layers
+      type: choice
+      args: [0, 1, 2, 3]
+    - hp: model.model_config_args.head_layer_dim
+      type: choice
+      args: [256, 512, 728, 1024, 2048]
+    - hp: model.model_config_args.head_intent_pooling
+      type: choice
+      args: ['first', 'max', 'mean']
+    - hp: model.model_config_args.freeze_layers
+      type: choice
+      args:
+        # single string for all layers, comma-separated, no spaces
+        - mt5.shared.weight
+        - '' # No freezing
+  backend: ray
+  n_trials: 128
+  max_concurrent_trials: 8
+  metric: eval_all_ex_match_acc
+  mode: max
+  direction: maximize
+  resources_per_trial:
+    cpu: 1
+    gpu: 1
+  scheduler:
+    type: AsyncHyperBandScheduler
+    grace_period: 5
+  keep_checkpoints_num: 0
+  checkpoint_score_attr: training_iteration
+  local_dir: /home/ec2-user/workspaces/centurion_modeling/mt5_base_ic_sf_encoder_only_zs_hpo_20220411/hpo/
+  name: *run_name
+  log_to_file: true

@@ -1,0 +1,41 @@
+
+run_name: &run_name xlmr_base_20220411_test
+max_length: &max_length 512
+
+model:
+  type: xlmr intent classification slot filling
+  checkpoint: /PATH/TO/CHECKPOINTS/xlmr_base_20220411/checkpoint-12628/
+
+tokenizer:
+  type: xlmr base
+  tok_args:
+    vocab_file: /PATH/TO/PRETRAINED/MODELS/xlm-roberta-base-sentencepiece.bpe.model
+    max_len: *max_length
+
+collator:
+  type: massive intent class slot fill
+  args:
+    max_length: *max_length
+    padding: longest
+
+test:
+  test_dataset: /PATH/TO/TESTDATA
+  intent_labels: /PATH/TO/INTENTMAP
+  slot_labels: /PATH/TO/SLOTMAP
+  massive_path: /PATH/TO/RAW/MASSIVE/
+  slot_labels_ignore:
+    - Other
+  eval_metrics: all
+  #predictions_file: /PATH/TO/LOGS/xlmr_base_20220411/preds.jsonl
+  trainer_args:
+    output_dir: /PATH/TO/CHECKPOINTS/xlmr_base_20220411/
+    per_device_eval_batch_size: 128
+    remove_unused_columns: false
+    label_names:
+      - intent_num
+      - slots_num
+    log_level: info
+    logging_strategy: no
+    #locale_eval_strategy: all only
+    locale_eval_strategy: all and each
+    disable_tqdm: false

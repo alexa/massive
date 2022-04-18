@@ -1,0 +1,163 @@
+
+run_name: &run_name xlmr_base_hp_tuning_20220411
+max_length: &max_length 512
+
+model:
+  type: xlmr intent classification slot filling
+  size: base
+  pretrained_weights: /PATH/TO/PRETRAINED/MODELS/xlm-roberta-base.bin
+  pretrained_weight_substring_transform: ['roberta', 'xlmr']
+  strict_load_pretrained_weights: false
+  model_config_args:
+    attention_probs_dropout_prob: 0.1
+    bos_token_id: 0
+    eos_token_id: 2
+    hidden_act: gelu
+    hidden_dropout_prob: 0.1
+    hidden_size: 768
+    initializer_range: 0.02
+    intermediate_size: 3072
+    layer_norm_eps: 1e-05
+    max_position_embeddings: 514
+    num_attention_heads: 12
+    num_hidden_layers: 12
+    output_past: true
+    pad_token_id: 1
+    type_vocab_size: 1
+    vocab_size: 250002
+    use_crf: false
+    slot_loss_coef: 4.0
+    hidden_layer_for_class: 10
+    head_num_layers: 1
+    head_layer_dim: 768
+    head_intent_pooling: mean
+    # Comma separated layer names, one string (to work with Ray)
+    freeze_layers: xlmr.embeddings.word_embeddings.weight
+
+tokenizer:
+  type: xlmr base
+  tok_args:
+    vocab_file: /PATH/TO/PRETRAINED/MODELS/xlm-roberta-base-sentencepiece.bpe.model
+    max_len: *max_length
+
+collator:
+  type: massive intent class slot fill
+  args:
+    max_length: *max_length
+    padding: longest
+
+train_val:
+  train_dataset: /PATH/TO/TRAINDATA
+  train_locales: en-US
+  dev_dataset: /PATH/TO/DEVDATA
+  intent_labels: /PATH/TO/INTENTMAP
+  slot_labels: /PATH/TO/SLOTMAP
+  slot_labels_ignore:
+    - Other
+  eval_metrics: ex_match_acc
+  max_eval_debugs: 0
+  trainer_args:
+    output_dir: /PATH/TO/CHECKPOINTS/xlmr_base_hp_20220411/
+    evaluation_strategy: steps
+    eval_steps: 500
+    learning_rate: 2e-5
+    warmup_steps: 500
+    gradient_accumulation_steps: 1
+    per_device_train_batch_size: 128
+    per_device_eval_batch_size: 128
+    num_train_epochs: 2
+    #max_steps: 5000
+    weight_decay: 0.01
+    remove_unused_columns: false
+    label_names:
+      - intent_num
+      - slots_num
+    logging_steps: 100
+    log_level: info
+    save_strategy: no
+#    locale_eval_strategy: all and each
+    locale_eval_strategy: all only
+    disable_tqdm: true
+
+hpo_args:
+  search_alg:
+    # for available values of 'type' see SEARCH_ALG_IMPORT at ray.tune.suggest.__init__.py
+    type: hyperopt
+  hp_space:
+    # This is the "config" for ray.tune
+    # For PopulationBasedTraining, it will start with these vals then perturb later
+    - hp: learning_rate
+      type: qloguniform
+      args: [1e-7, 1e-4, 1e-7]
+    - hp: weight_decay
+      type: quniform
+      args: [0.0, 0.5, 0.01]
+#    - hp: per_device_train_batch_size
+#      type: choice
+#      args: [8, 16, 32, 64, 128, 256]
+    - hp: gradient_accumulation_steps
+      type: choice
+      args: [1, 2, 4, 8, 16, 32]
+    - hp: model.model_config_args.hidden_dropout_prob
+      type: quniform
+      args: [0.0, 0.5, 0.05]
+    - hp: model.model_config_args.attention_probs_dropout_prob
+      type: quniform
+      args: [0.0, 0.5, 0.05]
+    - hp: lr_scheduler_type
+      type: choice
+      args: ['linear', 'constant_with_warmup']
+    - hp: warmup_steps
+      type: quniform
+      args: [0, 1000, 100]
+    - hp: num_train_epochs
+      type: quniform
+      args: [50, 1500, 50]
+    - hp: adam_beta1
+      type: choice
+      args: [0.8, 0.9, 0.99]
+    - hp: adam_beta2
+      type: choice
+      args: [0.95, 0.99, 0.999, 0.9999]
+    - hp: adam_epsilon
+      type: choice
+      args: [1e-6, 1e-7, 1e-8, 1e-9]
+    - hp: model.model_config_args.slot_loss_coef
+      type: choice
+      args: [0.5, 1.0, 2.0, 4.0, 8.0, 16.0]
+    - hp: model.model_config_args.hidden_layer_for_class
+      type: choice
+      args: [7, 8, 9, 10, 11]
+    - hp: model.model_config_args.head_num_layers
+      type: choice
+      args: [0, 1, 2, 3]
+    - hp: model.model_config_args.head_layer_dim
+      type: choice
+      args: [728, 1024, 2048, 3072, 4096, 8192, 16384]
+    - hp: model.model_config_args.head_intent_pooling
+      type: choice
+      args: ['first', 'max', 'mean']
+    - hp: model.model_config_args.freeze_layers
+      type: choice
+      args:
+        # single string for all layers, comma-separated, no spaces
+        - xlmr.embeddings.word_embeddings.weight
+        - '' # No freezing
+  backend: ray
+  n_trials: 1024
+  max_concurrent_trials: 8
+  metric: eval_all_ex_match_acc
+  mode: max
+  direction: maximize
+  resources_per_trial:
+    cpu: 1
+    gpu: 1
+  scheduler:
+    type: AsyncHyperBandScheduler
+    # Units are eval_steps from trainer args
+    grace_period: 3
+  keep_checkpoints_num: 0
+  checkpoint_score_attr: training_iteration
+  local_dir: /PATH/TO/CHECKPOINTS/xlmr_base_hp_20220411/hpo/
+  name: *run_name
+  log_to_file: true

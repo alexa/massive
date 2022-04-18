@@ -1,0 +1,88 @@
+
+run_name: &run_name mt5_base_20220411
+max_length: &max_length 512
+
+model:
+  type: mt5 for conditional generation
+  size: base
+  pretrained_weights: /PATH/TO/PRETRAINED/MODELS/mt5-base/pytorch_model.bin
+  strict_load_pretrained_weights: true
+  model_config_args:
+    d_ff: 2048
+    d_kv: 64
+    d_model: 768
+    decoder_start_token_id: 0
+    dropout_rate: 0.05
+    eos_token_id: 1
+    feed_forward_proj: gated-gelu
+    initializer_factor: 1.0
+    is_encoder_decoder: true
+    layer_norm_epsilon: 1e-06
+    model_type: mt5
+    num_decoder_layers: 12
+    num_heads: 12
+    num_layers: 12
+    output_past: true
+    pad_token_id: 0
+    relative_attention_num_buckets: 32
+    tie_word_embeddings: false
+    use_cache: true
+    vocab_size: 250112
+
+tokenizer:
+  type: mt5
+  tok_args:
+    vocab_file: /PATH/TO/PRETRAINED/MODELS/mt5-base/spiece.model
+    max_len: *max_length
+
+collator:
+  type: massive text to text intent class slot fill
+  args:
+    max_length: *max_length
+    padding: longest
+    t2t_args:
+      input_prompt: "Annotate: " # set to false for no prompt
+      use_output_descrip: false
+      intent_first: false
+      slots_mixed: false
+      toks_in_output: false
+      sentinels: false
+      inside_format: slot_name
+      outside_label: Other
+
+train_val:
+  trainer: massive s2s
+  train_dataset: /PATH/TO/TRAINDATA
+  dev_dataset: /PATH/TO/DEVDATA
+  dev_shorten_to: 10000
+  intent_labels: /PATH/TO/INTENTMAP
+  slot_labels: /PATH/TO/SLOTMAP
+  slot_labels_ignore:
+    - Other
+  eval_metrics: all
+  trainer_args:
+    output_dir: /PATH/TO/CHECKPOINTS/mt5_base_20220411/
+    logging_dir: /data/jgmf-sandbox/tensorboard/mt5_base_20220411/
+    save_strategy: epoch
+    evaluation_strategy: epoch
+    #evaluation_strategy: steps
+    #eval_steps: 100
+    learning_rate: 8.0e-05
+    lr_scheduler_type: linear
+    num_train_epochs: 22
+    warmup_steps: 200
+    per_device_train_batch_size: 8
+    per_device_eval_batch_size: 32
+    eval_accumulation_steps: 1
+    adam_beta1: 0.8
+    adam_beta2: 0.9999
+    adam_epsilon: 1.0e-09
+    weight_decay: 0.16
+    remove_unused_columns: false
+    logging_steps: 100
+    log_level: info
+    locale_eval_strategy: all only
+    predict_with_generate: true
+    generation_max_length: *max_length
+    generation_num_beams: 2
+    disable_tqdm: false
