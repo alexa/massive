@@ -22,8 +22,6 @@ import sys
 import time
 
 import datasets
-# TODO: Get this into the same package
-from evaluation_script import evaluate
 from massive import (
     MASSIVETrainer,
     MASSIVESeq2SeqTrainer,
