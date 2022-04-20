@@ -6,7 +6,9 @@
 
 ## Quick Links
 
-to add
+* [MASSIVE paper](https://arxiv.org/abs/2204.08582)
+* [MASSIVE Leaderboard and Massively Multilingual NLU 2022 Competition](https://eval.ai/web/challenges/challenge-page/1697/overview)
+* [MASSIVE Blog Post](http://amazon.sc/blog/amazon-releases-51-language-dataset-for-language-understanding)
 
 ## Introduction
 
@@ -240,11 +242,18 @@ See `LICENSE.txt`, `NOTICE.md`, and `THIRD-PARTY.md`.
 
 ## Citation
 
-We ask that you cite both our MASSIVE paper and the [paper for SLURP](https://aclanthology.org/2020.emnlp-main.588/), given that MASSIVE used English data from SLURP as seed data.
+We ask that you cite both our [MASSIVE paper](https://arxiv.org/abs/2204.08582) and the [paper for SLURP](https://aclanthology.org/2020.emnlp-main.588/), given that MASSIVE used English data from SLURP as seed data.
 
 MASSIVE paper:
 ```
-To add.
+@misc{fitzgerald2022massive,
+      title={MASSIVE: A 1M-Example Multilingual Natural Language Understanding Dataset with 51 Typologically-Diverse Languages}, 
+      author={Jack FitzGerald and Christopher Hench and Charith Peris and Scott Mackie and Kay Rottmann and Ana Sanchez and Aaron Nash and Liam Urbach and Vishesh Kakarala and Richa Singh and Swetha Ranganath and Laurie Crist and Misha Britan and Wouter Leeuwis and Gokhan Tur and Prem Natarajan},
+      year={2022},
+      eprint={2204.08582},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL}
+}
 ```
 
 SLURP paper:
