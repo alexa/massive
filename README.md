@@ -8,7 +8,7 @@
 
 * [MASSIVE paper](https://arxiv.org/abs/2204.08582)
 * [MASSIVE Leaderboard and Massively Multilingual NLU 2022 Competition](https://eval.ai/web/challenges/challenge-page/1697/overview)
-* [MASSIVE Blog Post](http://amazon.sc/blog/amazon-releases-51-language-dataset-for-language-understanding)
+* [MASSIVE Blog Post](https://www.amazon.science/blog/amazon-releases-51-language-dataset-for-language-understanding)
 
 ## Introduction
 
