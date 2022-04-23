@@ -257,16 +257,16 @@ def prepare_collator(conf, tokenizer, model=None):
     :type tokenizer: PreTrainedTokenizerFast
     :return: the collator object
     """
-    if conf.get('collator.type') == 'massive intent class slot fill':
+    if conf.get('train_val.collator.type') == 'massive intent class slot fill':
         return CollatorMASSIVEIntentClassSlotFill(
             tokenizer=tokenizer,
-            **conf.get('collator.args')
+            **conf.get('train_val.collator.args')
         )
-    if conf.get('collator.type') == 'massive text to text intent class slot fill':
+    if conf.get('train_val.collator.type') == 'massive text to text intent class slot fill':
         return CollatorMASSIVET2TIntentClassSlotFill(
             tokenizer=tokenizer,
             model=model,
-            **conf.get('collator.args')
+            **conf.get('train_val.collator.args')
         )
     else:
         raise NotImplementedError('Collator type not found!')
@@ -298,7 +298,7 @@ def create_compute_metrics(intent_labels, slot_labels, conf, tokenizer=None, ign
         metrics = [metrics]
 
     # COLLATOR: MASSIVE INTENT CLASS SLOT FILL
-    if conf.get('collator.type') == 'massive intent class slot fill':
+    if conf.get('train_val.collator.type') == 'massive intent class slot fill':
         def compute_metrics(p):
             # p is named tuple with `predictions` and `label_ids`.
             # p.predictions is a tuple of two elements, the first being the intent classification
@@ -332,7 +332,7 @@ def create_compute_metrics(intent_labels, slot_labels, conf, tokenizer=None, ign
             )
 
     # COLLATOR: MASSIVE TEXT TO TEXT INTENT CLASS SLOT FILL
-    elif conf.get('collator.type') == 'massive text to text intent class slot fill':
+    elif conf.get('train_val.collator.type') == 'massive text to text intent class slot fill':
         def compute_metrics(p):
             # p is named tuple with `predictions` and `label_ids`
 
@@ -353,7 +353,7 @@ def create_compute_metrics(intent_labels, slot_labels, conf, tokenizer=None, ign
             clean_lab_dec = tokenizer.batch_decode(clean_labels, skip_special_tokens=True)
             clean_pred_dec = tokenizer.batch_decode(clean_preds, skip_special_tokens=True)
 
-            t2t_args = conf.get('collator.args.t2t_args')
+            t2t_args = conf.get('train_val.collator.args.t2t_args')
             intents_pred, slots_pred_all = convert_t2t_batch_to_intents_slots(
                 clean_pred_dec, **t2t_args)
             intents_lab, slots_lab_all = convert_t2t_batch_to_intents_slots(
@@ -538,7 +538,7 @@ def output_predictions(outputs, intent_labels, slot_labels, conf, tokenizer=None
     # Make this False to not replace the space with a ZWSP when re-joining subwords
     replace_zwsp = conf.get('test.replace_inner_space_zwsp', default=True)
 
-    if conf.get('collator.type') == 'massive intent class slot fill':
+    if conf.get('train_val.collator.type') == 'massive intent class slot fill':
         # Create strings of the slot predictions
         intent_preds, slot_preds = outputs.predictions[0], outputs.predictions[1]
         intent_preds_am = [np.argmax(x) for x in intent_preds]
@@ -595,7 +595,7 @@ def output_predictions(outputs, intent_labels, slot_labels, conf, tokenizer=None
             line['pred_slots'] = slots
             final_outputs.append(line)
 
-    elif conf.get('collator.type') == 'massive text to text intent class slot fill':
+    elif conf.get('train_val.collator.type') == 'massive text to text intent class slot fill':
         clean_preds = []
 
         # Remove padding and other special tokens
@@ -607,7 +607,7 @@ def output_predictions(outputs, intent_labels, slot_labels, conf, tokenizer=None
 
         clean_pred_dec = tokenizer.batch_decode(clean_preds, skip_special_tokens=True)
 
-        t2t_args = conf.get('collator.args.t2t_args')
+        t2t_args = conf.get('train_val.collator.args.t2t_args')
         intents_pred, slots_pred = convert_t2t_batch_to_intents_slots(clean_pred_dec, **t2t_args)
 
         # Convert slots to (token, slot) format
@@ -630,7 +630,7 @@ def output_predictions(outputs, intent_labels, slot_labels, conf, tokenizer=None
         ]
 
     else:
-        raise NotImplementedError(f"Collator {conf.get('collator.type')} not known")
+        raise NotImplementedError(f"Collator {conf.get('train_val.collator.type')} not known")
 
 
     for line in final_outputs:
