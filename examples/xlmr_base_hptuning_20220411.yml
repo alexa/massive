@@ -38,6 +38,12 @@ tokenizer:
     vocab_file: /PATH/TO/PRETRAINED/MODELS/xlm-roberta-base-sentencepiece.bpe.model
     max_len: *max_length
 
+collator:
+  type: massive intent class slot fill
+  args:
+    max_length: *max_length
+    padding: longest
+
 train_val:
   train_dataset: /PATH/TO/TRAINDATA
   dev_dataset: /PATH/TO/DEVDATA
@@ -47,11 +53,6 @@ train_val:
   slot_labels_ignore_f1:
     - Other
   eval_metrics: ex_match_acc
-  collator:
-    type: massive intent class slot fill
-    args:
-      max_length: *max_length
-      padding: longest
   trainer_args:
     output_dir: /PATH/TO/CHECKPOINTS/xlmr_base_hp_20220411/
     evaluation_strategy: steps
