@@ -17,6 +17,8 @@ limitations under the License.
 import argparse
 import json
 import os
+import re
+from pathlib import Path
 
 import datasets
 from datasets import Dataset
@@ -69,11 +71,10 @@ class DatasetCreator:
 
         # Find locales based on the names of the files
         files = []
+        file_pattern = "^[a-z]{2}\\-[A-Z]{2}\\.jsonl$"
         data_paths = [data_paths] if type(data_paths) == str else data_paths
         for path in data_paths:
-            flist = [os.path.join(path,f) \
-                     for f in os.listdir(path) \
-                     if os.path.isfile(os.path.join(path,f))]
+            flist = [f for f in Path(path).rglob("*.jsonl") if re.match(file_pattern, f.name)]
             files = files + flist
 
         for file in files:
