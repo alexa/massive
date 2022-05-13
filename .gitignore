@@ -131,10 +131,10 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-.vs
-.vscode
-.idea
-.DS_Store
+.vs/
+.vscode/
+.idea/
+.DS_Store/
 
-.ipynb
+*.ipynb
 # use for example ``!demo.ipynb`` to avoid ignoring specific notebooks
