@@ -255,7 +255,9 @@ class DatasetCreator:
         :type output_prefix: str
         """
 
-        with open(output_prefix+'.intents', "w") as i, open(output_prefix+'.slots', "w") as s:
+        with open(Path(output_prefix + ".intents").expanduser().resolve(), "w") as i, open(
+            Path(output_prefix + ".slots").expanduser().resolve(), "w"
+        ) as s:
             # swap the keys and vals to use the index as key and slot as val
             json.dump({v: k for k, v in self.intent_dict.items()}, i)
             json.dump({v: k for k, v in self.slot_dict.items()}, s)
