@@ -140,7 +140,7 @@ class DatasetCreator:
                         skip_colon = False
                         continue
                     # keep latin chars together in cases of code switching
-                    if chunk.isascii():
+                    if isascii(chunk):
                         tokens.append(chunk.strip().rstrip(']'))
                         labels.append(label)
                     else:
@@ -277,6 +277,14 @@ class DatasetCreator:
         ]:
             if ds:
                 ds.save_to_disk(output_prefix+suf)
+
+
+def isascii(s):
+    try:
+        return s.isascii()
+    except AttributeError:
+        return all([ord(c) < 128 for c in s])
+
 
 def main():
     parser = argparse.ArgumentParser(description="Create huggingface datasets from MASSIVE")
