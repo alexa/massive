@@ -31,7 +31,7 @@ $ tree 1.0
     ...
 ```
 
-The dataset is organized into files of JSON lines. Each locale (according to ISO-639-1 and ISO-3166 conventions) has its own file containing all dataset partitions. An example JSON line for de-DE has the following:
+The dataset is organized into files of JSON lines. Each locale (according to [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) and [ISO-3166](https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes) conventions) has its own file containing all dataset partitions. An example JSON line for de-DE has the following:
 
 ```
 {
