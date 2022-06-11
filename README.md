@@ -215,7 +215,7 @@ For text-to-text modeling, we have included the following functions in `massive.
 For example, mT5 Base can be trained on an 8-GPU instance as follows:
 
 ```
-python -m torch.distributed.launch --nproc_per_node=8 scripts/train.py -c experiments/mt5_base_t2t_20220411.yml 2>&1 | tee /PATH/TO/LOG/FILE
+python -m torch.distributed.launch --nproc_per_node=8 scripts/train.py -c examples/mt5_base_t2t_20220411.yml 2>&1 | tee /PATH/TO/LOG/FILE
 ```
 
 ## Performing Inference on the Test Set
@@ -223,7 +223,7 @@ python -m torch.distributed.launch --nproc_per_node=8 scripts/train.py -c experi
 Test inference requires a `test` block in the configuration. See `examples/xlmr_base_test_20220411.yml` for an example. Test inference, including evaluation and output of all predictions, can be executed using the `scripts/test.py` script. For example:
 
 ```
-python -m torch.distributed.launch --nproc_per_node=8 scripts/test.py -c experiments/xlmr_base_test_20220411.yml 2>&1 | tee /PATH/TO/LOG/FILE
+python -m torch.distributed.launch --nproc_per_node=8 scripts/test.py -c examples/xlmr_base_test_20220411.yml 2>&1 | tee /PATH/TO/LOG/FILE
 ```
 
 Be sure to include a `test.predictions_file` in the config to output the predictions.
