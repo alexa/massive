@@ -2,12 +2,14 @@
 
 ## News
 
+* 14 Jun 2022: We updated the evaluation code to fix a bug identified by @yichaopku ([Issue 13](https://github.com/alexa/massive/issues/13), [PR 14](https://github.com/alexa/massive/pull/14)). Please pull commit 0552cdd or later to use the remedied evaluation code. The baseline results on the leaderboard and the preprint paper will be updated by 17 Jun.
 * 20 Apr 2022: Launch and release of the MASSIVE dataset, this repo, the MASSIVE paper, the leaderboard, and the Massively Multilingual NLU 2022 workshop and competition.
 
 ## Quick Links
 
 * [MASSIVE paper](https://arxiv.org/abs/2204.08582)
 * [MASSIVE Leaderboard and Massively Multilingual NLU 2022 Competition](https://eval.ai/web/challenges/challenge-page/1697/overview)
+* [Massively Multilingual NLU 2022 Workshop](https://mmnlu-22.github.io/)
 * [MASSIVE Blog Post](https://www.amazon.science/blog/amazon-releases-51-language-dataset-for-language-understanding)
 
 ## Introduction
@@ -190,8 +192,12 @@ conda env create -f conda_env.yml
 conda activate massive
 ```
 
-Then run training:
+Set the PYTHONPATH if needed:
+```
+export PYTHONPATH=${PYTHONPATH}:/PATH/TO/massive/src/
+```
 
+Then run training:
 ```
 scripts/train.py -c YOUR/CONFIG/FILE.yml
 ```
