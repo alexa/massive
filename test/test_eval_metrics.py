@@ -15,7 +15,7 @@ limitations under the License.
 """
 
 import pytest
-from massive.utils.training_utils import eval_preds
+from massive.utils.training_utils import convert_to_bio, eval_preds
 
 cases = [
 # ---------------- Slot F1 ---------------
@@ -42,14 +42,15 @@ cases = [
     ),
     (
         # Test padding
+        # 2 TP and 1 FN = 2 / (2 + (1 + 0) / 2)
         None,
         None,
-        [['X', 'X']],
-        [['X', 'X', 'Y']],
+        [['X', 'X', 'Y', 'Other']],
+        [['X', 'X', 'Y', 'Other', 'Y']],
         'Other',
         None,
         'slot_micro_f1',
-        {'slot_micro_f1': 0.5}
+        {'slot_micro_f1': 0.8}
     ),
     (
         # Test truncation
@@ -74,15 +75,49 @@ cases = [
         {'slot_micro_f1': 0.5}
     ),
     (
+        # Test prediction too long
+        None,
+        None,
+        [['X', 'X', 'X', 'Y', 'Y']],
+        [['X', 'X', 'Other', 'Y', 'Y']],
+        'Other',
+        None,
+        'slot_micro_f1',
+        {'slot_micro_f1': 0.5}
+    ),
+    (
+        # Test prediction too short
+        None,
+        None,
+        [['X', 'Other', 'Other', 'Y', 'Y']],
+        [['X', 'X', 'Other', 'Y', 'Y']],
+        'Other',
+        None,
+        'slot_micro_f1',
+        {'slot_micro_f1': 0.5}
+    ),
+    (
+        # Test prediction number mismatch
+        # 1 FN for Y and 1 TP for X = 1 / (1 + (0 + 1) / 2)
+        None,
+        None,
+        [['Other'], ['X']],
+        [['Y'], ['X']],
+        'Other',
+        None,
+        'slot_micro_f1',
+        {'slot_micro_f1': 0.67}
+    ),
+    (
         # Test -100 merging
         None,
         None,
         [[50, -100, 50, -100, -100, 20, 20, 10, 10, -100, 20]],
-        [[50, -100, 50, -100, -100, 20, 0,  20, 0,  -100, 20]],
+        [[50, -100, 50, -100, -100, 20, 0,  10, 0,  -100, 20]],
         [0],
         [-100],
         'slot_micro_f1',
-        {'slot_micro_f1': 0.75}
+        {'slot_micro_f1': 0.5}
     ),
 
 # ------------- Exact match acc  and intent acc ----------
@@ -107,6 +142,17 @@ cases = [
         'all',
         {'ex_match_acc': 0.25, 'intent_acc': 0.75}
     ),
+    (
+        # Test prediction too long
+        ['A'],
+        ['A'],
+        [['X', 'X', 'X']],
+        [['X', 'X', 'Other']],
+        'Other',
+        None,
+        'all',
+        {'ex_match_acc': 0}
+    )
 ]
 
 @pytest.mark.parametrize(
@@ -131,3 +177,22 @@ def test_eval_preds(
     for key in out:
         assert key in results
         assert round(out[key], 2) == round(results[key], 2)
+
+bio_cases = [
+    (
+        ['city', 'city', 'Other', 'country', -100, 'Other'],
+        'Other',
+        -100,
+        ['B-city', 'I-city', 'O', 'B-country', 'I-country', 'O']
+    ),
+    (
+        [1, 1, 3, 3, 9, 4],
+        [3],
+        [9],
+        ['B-1', 'I-1', 'O', 'O', 'O', 'B-4']
+    )
+]
+
+@pytest.mark.parametrize('seq_tags, outside, labels_merge, out', bio_cases)
+def test_convert_to_bio(seq_tags, outside, labels_merge, out):
+    assert convert_to_bio(seq_tags, outside, labels_merge) == out

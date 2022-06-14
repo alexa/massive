@@ -1,2 +1,4 @@
 src/massive/**/__pycache__/*
 *~
+*.pyc
+*.swp
