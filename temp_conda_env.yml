@@ -2,29 +2,29 @@ name: massive
 channels:
   - defaults
 dependencies:
-  - _libgcc_mutex=0.1=main
-  - _openmp_mutex=4.5=1_gnu
-  - ca-certificates=2021.10.26=h06a4308_2
-  - certifi=2021.10.8=py39h06a4308_0
-  - ld_impl_linux-64=2.35.1=h7274673_9
-  - libffi=3.3=he6710b0_2
-  - libgcc-ng=9.3.0=h5101ec6_17
-  - libgomp=9.3.0=h5101ec6_17
-  - libstdcxx-ng=9.3.0=hd4cf53a_17
-  - ncurses=6.3=h7f8727e_2
-  - openssl=1.1.1l=h7f8727e_0
-  - pip=21.2.4=py39h06a4308_0
-  - python=3.9.7=h12debd9_1
-  - readline=8.1=h27cfd23_0
-  - ruamel.yaml=0.16.12=py39h27cfd23_1
-  - ruamel.yaml.clib=0.2.0=py39h27cfd23_0
-  - setuptools=58.0.4=py39h06a4308_0
-  - sqlite=3.36.0=hc218d9a_0
-  - tk=8.6.11=h1ccaba5_0
-  - tzdata=2021e=hda174b7_0
-  - wheel=0.37.0=pyhd3eb1b0_1
-  - xz=5.2.5=h7b6447c_0
-  - zlib=1.2.11=h7b6447c_3
+  - _libgcc_mutex=0.1
+#  - _openmp_mutex=4.5
+  - ca-certificates=2021.10.26
+  - certifi=2021.10.8
+#  - ld_impl_linux-64=2.35.1
+  - libffi=3.3
+#  - libgcc-ng=9.3.0
+#  - libgomp=9.3.0
+#  - libstdcxx-ng=9.3.0
+  - ncurses=6.3
+  - openssl=1.1.1l
+  - pip=21.2.4
+  - python=3.9.7
+  - readline=8.1
+  - ruamel.yaml=0.16.12
+  - ruamel.yaml.clib=0.2.0
+  - setuptools=58.0.4
+  - sqlite=3.36.0
+  - tk=8.6.11
+  - tzdata=2021e
+  - wheel=0.37.0
+  - xz=5.2.5
+  - zlib=1.2.11
   - pip:
     - aiohttp==3.8.1
     - aiosignal==1.2.0
@@ -80,7 +80,6 @@ dependencies:
     - scikit-learn==1.0.1
     - scipy==1.7.3
     - sentencepiece==0.1.96
-    - seqeval==1.2.2
     - six==1.16.0
     - sklearn==0.0
     - tabulate==0.8.9
