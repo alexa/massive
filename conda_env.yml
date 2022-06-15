@@ -80,6 +80,7 @@ dependencies:
     - scikit-learn==1.0.1
     - scipy==1.7.3
     - sentencepiece==0.1.96
+    - seqeval==1.2.2
     - six==1.16.0
     - sklearn==0.0
     - tabulate==0.8.9

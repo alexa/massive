@@ -24,6 +24,7 @@ import logging
 from math import sqrt
 import numpy as np
 import os
+from seqeval.metrics import f1_score
 import sklearn.metrics as sklm
 import torch
 from transformers import (
@@ -374,9 +375,57 @@ def create_compute_metrics(intent_labels, slot_labels, conf, tokenizer=None, ign
 
     return compute_metrics
 
+def convert_to_bio(seq_tags, outside='Other', labels_merge=None):
+    """
+    Converts a sequence of tags into BIO format. EX:
+
+        ['city', 'city', 'Other', 'country', -100, 'Other']
+        to
+        ['B-city', 'I-city', 'O', 'B-country', 'I-country', 'O']
+        where outside = 'Other' and labels_merge = [-100]
+
+    :param seq_tags: the sequence of tags that should be converted
+    :type seq_tags: list
+    :param outside: The label(s) to put outside (ignore). Default: 'Other'
+    :type outside: str or list
+    :param labels_merge: The labels to merge leftward (i.e. for tokenized inputs)
+    :type labels_merge: str or list
+    :return: a BIO-tagged sequence
+    :rtype: list
+    """
+
+    seq_tags = [str(x) for x in seq_tags]
+
+    outside = [outside] if type(outside) != list else outside
+    outside = [str(x) for x in outside]
+
+    if labels_merge:
+        labels_merge = [labels_merge] if type(labels_merge) != list else labels_merge
+        labels_merge = [str(x) for x in labels_merge]
+    else:
+        labels_merge = []
+
+    bio_tagged = []
+    prev_tag = None
+    for tag in seq_tags:
+        if tag in outside:
+            bio_tagged.append('O')
+            prev_tag = tag
+            continue
+        if tag != prev_tag and tag not in labels_merge:
+            bio_tagged.append('B-' + tag)
+            prev_tag = tag
+            continue
+        if tag == prev_tag or tag in labels_merge:
+            if prev_tag in outside:
+                bio_tagged.append('O')
+            else:
+                bio_tagged.append('I-' + prev_tag)
+
+    return bio_tagged
+
 def eval_preds(pred_intents=None, lab_intents=None, pred_slots=None, lab_slots=None,
-               eval_metrics='all', labels_ignore='Other', labels_merge=None, pad='Other',
-               slot_level_combination=True):
+               eval_metrics='all', labels_ignore='Other', labels_merge=None, pad='Other'):
     """
     Function to evaluate the predictions from a model
 
@@ -397,18 +446,8 @@ def eval_preds(pred_intents=None, lab_intents=None, pred_slots=None, lab_slots=N
     :type labels_merge: str or list
     :param pad: The value to use when padding slot predictions to match the length of ground truth
     :type pad: str
-    :param slot_level_combination: Whether to merge adjacent tokens with the same slot label
-    :type slot_level_combination: bool
     """
 
-    # convert to correct types
-    labels_ignore = [labels_ignore] if type(labels_ignore) != list else labels_ignore
-    labels_ignore = [str(x) for x in labels_ignore]
-    if labels_merge:
-        labels_merge = [labels_merge] if type(labels_merge) != list else labels_merge
-        labels_merge = [str(x) for x in labels_merge]
-    else:
-        labels_merge = []
     results = {}
 
     # Check lengths
@@ -424,69 +463,38 @@ def eval_preds(pred_intents=None, lab_intents=None, pred_slots=None, lab_slots=N
         results['intent_acc_stderr'] = sqrt(intent_acc*(1-intent_acc)/len(pred_intents))
 
     if lab_slots is not None and pred_slots is not None:
-        pruned_slot_labels, pruned_slot_preds = [], []
+        bio_slot_labels, bio_slot_preds = [], []
         for lab, pred in zip(lab_slots, pred_slots):
 
             # Pad or truncate prediction as needed using `pad` arg
             if type(pred) == list:
                 pred = pred[:len(lab)] + [pad]*(len(lab) - len(pred))
 
-            if slot_level_combination:
-                # for each prediction and label, we want to combine tokens with same slot into
-                # a single slot. So we'll make a string for each and concatenate with commas
-                new_lab, new_pred = [], []
-                prev_lab = ''
-
-                in_merge = False
-                for i in range(len(lab)):
-                    if str(lab[i]) in labels_ignore:
-                        prev_lab = str(lab[i])
-                        in_merge = False
-                    elif str(lab[i]) in labels_merge:
-                        if i != 0 and not in_merge:
-                            prev_lab = str(lab[i-1])
-                            in_merge = True
-                    # Combine slots
-                    elif str(lab[i]) == prev_lab:
-                        new_lab[-1] = new_lab[-1] + ',' + str(lab[i])
-                        new_pred[-1] = new_pred[-1] + ',' + str(pred[i])
-                        prev_lab = str(lab[i])
-                        in_merge = False
-                    else:
-                        new_lab.append(str(lab[i]))
-                        new_pred.append(str(pred[i]))
-                        prev_lab = str(lab[i])
-                        in_merge = False
-
-                pred = new_pred
-                lab = new_lab
-
-            pruned_slot_labels.append(lab)
-            pruned_slot_preds.append(pred)
+            # convert to BIO
+            bio_slot_labels.append(
+                convert_to_bio(lab, outside=labels_ignore, labels_merge=labels_merge)
+            )
+            bio_slot_preds.append(
+                convert_to_bio(pred, outside=labels_ignore, labels_merge=labels_merge)
+            )
 
     if ('slot_micro_f1' in eval_metrics) or ('all' in eval_metrics):
 
-        # Flatten list of lists to a single list
-        flat_pruned_slot_labels = [item for sublist in pruned_slot_labels for item in sublist]
-        flat_pruned_slot_preds = [item for sublist in pruned_slot_preds for item in sublist]
-
-        # Calculate globally micro averaged slot f1 (~0.2 seconds)
-        smf1 = sklm.f1_score(flat_pruned_slot_labels,
-                             flat_pruned_slot_preds,
-                             average='micro',
-                             zero_division=0)
+        # from seqeval
+        smf1 = f1_score(bio_slot_labels, bio_slot_preds)
         results['slot_micro_f1'] = smf1
         # Assuming normal distribution. Multiply by z (from "z table") to get confidence int
-        results['slot_micro_f1_stderr'] = sqrt(smf1*(1-smf1)/len(flat_pruned_slot_preds))
+        total_slots = sum([len(x) for x in bio_slot_preds])
+        results['slot_micro_f1_stderr'] = sqrt(smf1*(1-smf1)/total_slots)
 
     if ('ex_match_acc' in eval_metrics) or ('all' in eval_metrics):
         # calculate exact match accuracy (~0.01 seconds)
         matches = 0
         denom = 0
         for p_int, p_slot, l_int, l_slot in zip(pred_intents,
-                                                pruned_slot_preds,
+                                                bio_slot_preds,
                                                 lab_intents,
-                                                pruned_slot_labels):
+                                                bio_slot_labels):
 
             if (p_int == l_int) and (p_slot == l_slot):
                 matches += 1
