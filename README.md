@@ -2,7 +2,7 @@
 
 ## News
 
-* 14 Jun 2022: We updated the evaluation code to fix a bug identified by @yichaopku ([Issue 13](https://github.com/alexa/massive/issues/13), [PR 14](https://github.com/alexa/massive/pull/14)). Please pull commit 0552cdd or later to use the remedied evaluation code. The baseline results on the leaderboard and the preprint paper will be updated by 17 Jun.
+* 14 Jun 2022: We updated the evaluation code to fix a bug identified by @yichaopku ([Issue 13](https://github.com/alexa/massive/issues/13), [PR 14](https://github.com/alexa/massive/pull/14)). Please pull commit 0552cdd or later to use the remedied evaluation code. The baseline results on the [leaderboard](https://eval.ai/web/challenges/challenge-page/1697/overview) have been updated, and the updated preprint paper will be posted to arXiv early next week.
 * 20 Apr 2022: Launch and release of the MASSIVE dataset, this repo, the MASSIVE paper, the leaderboard, and the Massively Multilingual NLU 2022 workshop and competition.
 
 ## Quick Links
