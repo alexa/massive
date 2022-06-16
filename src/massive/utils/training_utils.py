@@ -408,15 +408,15 @@ def convert_to_bio(seq_tags, outside='Other', labels_merge=None):
     bio_tagged = []
     prev_tag = None
     for tag in seq_tags:
-        if tag in outside:
+        if prev_tag == None and tag in labels_merge:
+            bio_tagged.append('O')
+        elif tag in outside:
             bio_tagged.append('O')
             prev_tag = tag
-            continue
-        if tag != prev_tag and tag not in labels_merge:
+        elif tag != prev_tag and tag not in labels_merge:
             bio_tagged.append('B-' + tag)
             prev_tag = tag
-            continue
-        if tag == prev_tag or tag in labels_merge:
+        elif tag == prev_tag or tag in labels_merge:
             if prev_tag in outside:
                 bio_tagged.append('O')
             else:
