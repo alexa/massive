@@ -2,7 +2,7 @@
 
 ## News
 
-* 20 Jun 2022: We updated the evaluation code to fix a bug identified by @yichaopku ([Issue 13](https://github.com/alexa/massive/issues/13), [PR 14](https://github.com/alexa/massive/pull/14)). Please pull commit [a8dbdff](https://github.com/alexa/massive/commit/a8dbdfff4f5a2df4aec902b9554216a7e2c930c4) or later to use the remedied evaluation code. The baseline results on the [leaderboard](https://eval.ai/web/challenges/challenge-page/1697/overview) have been updated, as well as the [preprint paper](https://arxiv.org/abs/2204.08582) on arXiv.
+* 22 Jun 2022: We updated the evaluation code to fix bugs identified by @yichaopku and @bozheng-hit (Issues [13](https://github.com/alexa/massive/issues/13) and [21](https://github.com/alexa/massive/issues/21), PRs [14](https://github.com/alexa/massive/pull/14) and [22](https://github.com/alexa/massive/pull/22)). Please pull commit [3932705](https://github.com/alexa/massive/commit/39327059fcef8f1b108fd30558c1a6648dea688f) or later to use the remedied evaluation code. The baseline results on the [leaderboard](https://eval.ai/web/challenges/challenge-page/1697/overview) have been updated, as well as the [preprint paper](https://arxiv.org/abs/2204.08582) on arXiv.
 * 20 Apr 2022: Launch and release of the MASSIVE dataset, this repo, the MASSIVE paper, the leaderboard, and the Massively Multilingual NLU 2022 workshop and competition.
 
 ## Quick Links
@@ -199,10 +199,15 @@ export PYTHONPATH=${PYTHONPATH}:/PATH/TO/massive/src/
 
 Then run training:
 ```
-scripts/train.py -c YOUR/CONFIG/FILE.yml
+python scripts/train.py -c YOUR/CONFIG/FILE.yml
 ```
 
-Distributed training can be run using `torch.distributed.launch`. For example:
+Distributed training can be run using `torchrun` for PyTorch v1.10 or later or `torch.distributed.launch` for earlier PyTorch versions. For example:
+
+```
+torchrun --nproc_per_node=8 scripts/train.py -c YOUR/CONFIG/FILE.yml
+```
+or
 
 ```
 python -m torch.distributed.launch --nproc_per_node=8 scripts/train.py -c YOUR/CONFIG/FILE.yml
@@ -220,6 +225,12 @@ For text-to-text modeling, we have included the following functions in `massive.
 
 For example, mT5 Base can be trained on an 8-GPU instance as follows:
 
+For PyTorch v1.10 or later:
+```
+torchrun --nproc_per_node=8 scripts/train.py -c examples/mt5_base_t2t_20220411.yml 2>&1 | tee /PATH/TO/LOG/FILE
+```
+
+Or on older PyTorch versions:
 ```
 python -m torch.distributed.launch --nproc_per_node=8 scripts/train.py -c examples/mt5_base_t2t_20220411.yml 2>&1 | tee /PATH/TO/LOG/FILE
 ```
@@ -228,6 +239,12 @@ python -m torch.distributed.launch --nproc_per_node=8 scripts/train.py -c exampl
 
 Test inference requires a `test` block in the configuration. See `examples/xlmr_base_test_20220411.yml` for an example. Test inference, including evaluation and output of all predictions, can be executed using the `scripts/test.py` script. For example:
 
+For PyTorch v1.10 or later:
+```
+torchrun --nproc_per_node=8 scripts/test.py -c examples/xlmr_base_test_20220411.yml 2>&1 | tee /PATH/TO/LOG/FILE
+```
+
+Or on older PyTorch versions:
 ```
 python -m torch.distributed.launch --nproc_per_node=8 scripts/test.py -c examples/xlmr_base_test_20220411.yml 2>&1 | tee /PATH/TO/LOG/FILE
 ```
