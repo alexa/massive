@@ -470,6 +470,11 @@ def eval_preds(pred_intents=None, lab_intents=None, pred_slots=None, lab_slots=N
             if type(pred) == list:
                 pred = pred[:len(lab)] + [pad]*(len(lab) - len(pred))
 
+            # Fix for Issue 21 -- subwords after the first one from a word should be ignored
+            for i, x in enumerate(lab):
+                if x == -100:
+                    pred[i] = -100
+
             # convert to BIO
             bio_slot_labels.append(
                 convert_to_bio(lab, outside=labels_ignore, labels_merge=labels_merge)

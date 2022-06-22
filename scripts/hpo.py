@@ -17,6 +17,7 @@ limitations under the License.
 import argparse
 import datetime
 import logging
+import os
 import sys
 
 import datasets
@@ -50,6 +51,8 @@ def main():
     trainer_args = MASSIVETrainingArguments(**conf.get('train_val.trainer_args'))
     if args.local_rank:
         trainer_args.local_rank = int(args.local_rank)
+    elif os.getenv('LOCAL_RANK'):
+        trainer_args.local_rank = int(os.environ['LOCAL_RANK'])
 
     # Setup logging
     logging.basicConfig(
