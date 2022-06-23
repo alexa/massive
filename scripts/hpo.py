@@ -73,7 +73,9 @@ def main():
     train_ds, dev_ds, intents, slots = prepare_train_dev_datasets(conf, tokenizer)
     collator = prepare_collator(conf, tokenizer)
     model_init_fn = init_model(conf, intents, slots, return_hpo_fn=True)
-    compute_metrics = create_compute_metrics(conf, intents, slots, tokenizer)
+    slots_ignore = conf.get('train_val.slot_labels_ignore', default=[])
+    metrics = conf.get('train_val.eval_metrics', default='all')
+    compute_metrics = create_compute_metrics(intents, slots, conf, tokenizer, slots_ignore, metrics)
 
     # Get the right trainer
     trainer_cls = MASSIVESeq2SeqTrainer \
