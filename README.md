@@ -2,6 +2,7 @@
 
 ## News
 
+* 30 Jun 2022: (CFP) Paper [submissions](https://mmnlu-22.github.io/Calls/) for Massively Multilingual NLU 2022, a workshop at EMNLP 2022, are now being accepted. MASSIVE is the shared task for the workshop.
 * 22 Jun 2022: We updated the evaluation code to fix bugs identified by @yichaopku and @bozheng-hit (Issues [13](https://github.com/alexa/massive/issues/13) and [21](https://github.com/alexa/massive/issues/21), PRs [14](https://github.com/alexa/massive/pull/14) and [22](https://github.com/alexa/massive/pull/22)). Please pull commit [3932705](https://github.com/alexa/massive/commit/39327059fcef8f1b108fd30558c1a6648dea688f) or later to use the remedied evaluation code. The baseline results on the [leaderboard](https://eval.ai/web/challenges/challenge-page/1697/overview) have been updated, as well as the [preprint paper](https://arxiv.org/abs/2204.08582) on arXiv.
 * 20 Apr 2022: Launch and release of the MASSIVE dataset, this repo, the MASSIVE paper, the leaderboard, and the Massively Multilingual NLU 2022 workshop and competition.
 
