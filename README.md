@@ -1,6 +1,6 @@
 # MASSIVE
 
-:point_left: Join the MMNLU-22 [slack workspace](https://join.slack.com/t/mmnlu-22/shared_invite/zt-1c5p3d3hw-8Ou0QJahOUrEzt5YDYl5Dw) here :point_right:
+:point_right: Join the MMNLU-22 [slack workspace](https://join.slack.com/t/mmnlu-22/shared_invite/zt-1c5p3d3hw-8Ou0QJahOUrEzt5YDYl5Dw) here :point_left:
 
 ## News
 
