@@ -1,5 +1,7 @@
 # MASSIVE
 
+:point_left: Join the MMNLU-22 [slack workspace](https://join.slack.com/t/mmnlu-22/shared_invite/zt-1c5p3d3hw-8Ou0QJahOUrEzt5YDYl5Dw) here :point_right:
+
 ## News
 
 * 7 Jul 2022: Get ready! The unlabeled evaluation data for the [Massively Multilingual NLU 2022 Competition](https://mmnlu-22.github.io/Competition/) will be released on July 25th. Scores can be submitted to the [MMNLU-22](https://eval.ai/web/challenges/challenge-page/1697/leaderboard/4060) leaderboard until Aug 8th. Winners will be invited to speak at the workshop, colocated with EMNLP.
