@@ -4,10 +4,7 @@
 
 ## News
 
-* 7 Jul 2022: Get ready! The unlabeled evaluation data for the [Massively Multilingual NLU 2022 Competition](https://mmnlu-22.github.io/Competition/) will be released on July 25th. Scores can be submitted to the [MMNLU-22](https://eval.ai/web/challenges/challenge-page/1697/leaderboard/4060) leaderboard until Aug 8th. Winners will be invited to speak at the workshop, colocated with EMNLP.
-* 30 Jun 2022: (CFP) Paper [submissions](https://mmnlu-22.github.io/Calls/) for Massively Multilingual NLU 2022, a workshop at EMNLP 2022, are now being accepted. MASSIVE is the shared task for the workshop.
-* 22 Jun 2022: We updated the evaluation code to fix bugs identified by @yichaopku and @bozheng-hit (Issues [13](https://github.com/alexa/massive/issues/13) and [21](https://github.com/alexa/massive/issues/21), PRs [14](https://github.com/alexa/massive/pull/14) and [22](https://github.com/alexa/massive/pull/22)). Please pull commit [3932705](https://github.com/alexa/massive/commit/39327059fcef8f1b108fd30558c1a6648dea688f) or later to use the remedied evaluation code. The baseline results on the [leaderboard](https://eval.ai/web/challenges/challenge-page/1697/overview) have been updated, as well as the [preprint paper](https://arxiv.org/abs/2204.08582) on arXiv.
-* 20 Apr 2022: Launch and release of the MASSIVE dataset, this repo, the MASSIVE paper, the leaderboard, and the Massively Multilingual NLU 2022 workshop and competition.
+* 25 Jul 2022: The unlabeled evaluation set for the [Massively Multilingual NLU 2022 Competition](https://mmnlu-22.github.io/Competition/) has been released. Please note that (1) the eval data is unlabeled, meaning that the keys `scenario`, `intent`, and `annot_utt` are not present, and (2) the intent and slot maps from your previous training run should be used when creating a new huggingface-style dataset using `create_hf_dataset.py`. More details can be found in the section with heading "MMNLU-22 Eval" below.
 
 ## Quick Links
 
@@ -23,6 +20,8 @@ MASSIVE is a parallel dataset of > 1M utterances across 51 languages with annota
 ## Accessing and Processing the Data
 
 The dataset can be downloaded [here](https://amazon-massive-nlu-dataset.s3.amazonaws.com/amazon-massive-dataset-1.0.tar.gz).
+
+The unlabeled MMNLU-22 eval data can be downloaded [here](https://amazon-massive-nlu-dataset.s3.amazonaws.com/amazon-massive-dataset-heldout-MMNLU-1.0.tar.gz)
 
 ```
 $ curl https://amazon-massive-nlu-dataset.s3.amazonaws.com/amazon-massive-dataset-1.0.tar.gz --output amazon-massive-dataset-1.0.tar.gz
@@ -257,6 +256,42 @@ Be sure to include a `test.predictions_file` in the config to output the predict
 
 For official test results, please upload your predictions to the eval.ai leaderboard.
 
+## MMNLU-22 Eval
+
+To create predictions for the Massively Multilingual NLU 2022 competition on eval.ai, you can follow these example steps using the model you've already trained. An example config is given at `examples/mt5_base_t2t_mmnlu_20220720.yml`.
+
+Download and untar:
+
+```
+curl https://amazon-massive-nlu-dataset.s3.amazonaws.com/amazon-massive-dataset-heldout-MMNLU-1.0.tar.gz --output amazon-massive-dataset-heldout-MMNLU-1.0.tar.gz
+
+tar -xzvf amazon-massive-dataset-heldout-MMNLU-1.0.tar.gz
+```
+
+Create the huggingface version of the dataset using the mapping files used when training the model.
+
+```
+python scripts/create_hf_dataset.py \
+    -d /PATH/TO/mmnlu-eval/data \
+    -o /PATH/TO/hf-mmnlu-eval \
+    --intent-map /PATH/TO/massive_1.0_hf_format/massive_1.0.intents \
+    --slot-map /PATH/TO/massive_1.0_hf_format/massive_1.0.slots
+```
+
+Create a config file similar to `examples/mt5_base_t2t_mmnlu_20220720.yml`.
+
+Kick off inference from within your environment with dependencies loaded, etc:
+
+For PyTorch v1.10 or later:
+```
+torchrun --nproc_per_node=8 scripts/predict.py -c PATH/TO/YOUR/CONFIG.yml 2>&1 | tee PATH/TO/LOG
+```
+
+Or on older PyTorch versions:
+```
+python -m torch.distributed.launch --nproc_per_node=8 scripts/predict.py -c PATH/TO/YOUR/CONFIG.yml 2>&1 | tee PATH/TO/LOG
+```
+
 ## Hyperparameter Tuning
 
 Hyperparameter tuning can be performed using the `Trainer` from `transformers`. Similarly to training, we combine all configurations into a single yaml file. An example is given here: `example/xlmr_base_hptuning_20220411.yml`.
@@ -302,3 +337,10 @@ SLURP paper:
     abstract = "Spoken Language Understanding infers semantic meaning directly from audio data, and thus promises to reduce error propagation and misunderstandings in end-user applications. However, publicly available SLU resources are limited. In this paper, we release SLURP, a new SLU package containing the following: (1) A new challenging dataset in English spanning 18 domains, which is substantially bigger and linguistically more diverse than existing datasets; (2) Competitive baselines based on state-of-the-art NLU and ASR systems; (3) A new transparent metric for entity labelling which enables a detailed error analysis for identifying potential areas of improvement. SLURP is available at https://github.com/pswietojanski/slurp."
 }
 ```
+
+## Old News
+
+* 7 Jul 2022: Get ready! The unlabeled evaluation data for the [Massively Multilingual NLU 2022 Competition](https://mmnlu-22.github.io/Competition/) will be released on July 25th. Scores can be submitted to the [MMNLU-22](https://eval.ai/web/challenges/challenge-page/1697/leaderboard/4060) leaderboard until Aug 8th. Winners will be invited to speak at the workshop, colocated with EMNLP.
+* 30 Jun 2022: (CFP) Paper [submissions](https://mmnlu-22.github.io/Calls/) for Massively Multilingual NLU 2022, a workshop at EMNLP 2022, are now being accepted. MASSIVE is the shared task for the workshop.
+* 22 Jun 2022: We updated the evaluation code to fix bugs identified by @yichaopku and @bozheng-hit (Issues [13](https://github.com/alexa/massive/issues/13) and [21](https://github.com/alexa/massive/issues/21), PRs [14](https://github.com/alexa/massive/pull/14) and [22](https://github.com/alexa/massive/pull/22)). Please pull commit [3932705](https://github.com/alexa/massive/commit/39327059fcef8f1b108fd30558c1a6648dea688f) or later to use the remedied evaluation code. The baseline results on the [leaderboard](https://eval.ai/web/challenges/challenge-page/1697/overview) have been updated, as well as the [preprint paper](https://arxiv.org/abs/2204.08582) on arXiv.
+* 20 Apr 2022: Launch and release of the MASSIVE dataset, this repo, the MASSIVE paper, the leaderboard, and the Massively Multilingual NLU 2022 workshop and competition.

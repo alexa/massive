@@ -122,34 +122,46 @@ class DatasetCreator:
         test, hid_eval = {k: [] for k in cols}, {k: [] for k in cols}
 
         for row in massive_data:
-            domain, intent, utt, locale = row['scenario'], row['intent'], row['utt'], row['locale']
-            annot_utt, eyed, split = row['annot_utt'], row['id'], row['partition']
+            eyed, locale, split, utt = row['id'], row['locale'], row['partition'], row['utt']
+            domain = row['scenario'] if 'scenario' in row else ''
+            intent = row['intent'] if 'intent' in row else ''
+            annot_utt = row['annot_utt'] if 'annot_utt' in row else ''
 
             # Split these languages by character
             if locale in char_split:
                 tokens, labels = [], []
                 label = 'Other'
                 skip_colon = False
-                for chunk in annot_utt.split():
-                    if chunk.startswith('['):
-                        label = chunk.lstrip('[')
-                        skip_colon = True
-                        continue
-                    if chunk == ':' and skip_colon is True:
-                        skip_colon = False
-                        continue
-                    # keep latin chars together in cases of code switching
-                    if isascii(chunk):
-                        tokens.append(chunk.strip().rstrip(']'))
-                        labels.append(label)
-                    else:
-                        chars = list(chunk.strip())
-                        for char in chars:
-                            if char == ']':
-                                label = 'Other'
-                            else:
+                if annot_utt:
+                    for chunk in annot_utt.split():
+                        if chunk.startswith('['):
+                            label = chunk.lstrip('[')
+                            skip_colon = True
+                            continue
+                        if chunk == ':' and skip_colon is True:
+                            skip_colon = False
+                            continue
+                        # keep latin chars together in cases of code switching
+                        if isascii(chunk):
+                            tokens.append(chunk.strip().rstrip(']'))
+                            labels.append(label)
+                        else:
+                            chars = list(chunk.strip())
+                            for char in chars:
+                                if char == ']':
+                                    label = 'Other'
+                                else:
+                                    tokens.append(char)
+                                    labels.append(label)
+                # if no annot_utt, then make assumption latin words are space sep already
+                else:
+                    for chunk in utt.split():
+                        if isascii(chunk):
+                            tokens.append(chunk.strip())
+                        else:
+                            chars = list(chunk.strip())
+                            for char in chars:
                                 tokens.append(char)
-                                labels.append(label)
 
             else:
                 # Create the tokens and labels by working left to right of annotated utt
@@ -170,7 +182,7 @@ class DatasetCreator:
                         labels.append(label)
                         idx += 1
 
-            if len(tokens) != len(labels):
+            if len(tokens) != len(labels) and labels:
                 raise ValueError(f"Len of tokens, {tokens}, doesnt match len of labels, {labels}, "
                                  f"for id {eyed} and annot utt: {annot_utt}")
 
@@ -181,7 +193,7 @@ class DatasetCreator:
                 dict_view = dev
             elif split == 'test':
                 dict_view = test
-            elif split == 'heldout':
+            elif split == 'MMNLU-22':
                 dict_view = hid_eval
             else:
                 raise ValueError(f"split {split} is not valid")
@@ -244,7 +256,9 @@ class DatasetCreator:
         self.train = self.train.map(create_numeric_labels) if self.train else None
         self.dev = self.dev.map(create_numeric_labels) if self.dev else None
         self.test = self.test.map(create_numeric_labels) if self.test else None
-        self.hidden_eval = self.hidden_eval.map(create_numeric_labels) if self.hidden_eval else None
+        if self.hidden_eval[0]['intent_str']:
+            self.hidden_eval = self.hidden_eval.map(create_numeric_labels) if self.hidden_eval \
+                                                                           else None
 
     def save_label_dicts(self, output_prefix):
         """
@@ -270,7 +284,7 @@ class DatasetCreator:
             (self.train, '.train'),
             (self.dev, '.dev'),
             (self.test, '.test'),
-            (self.hidden_eval, '.hidden_eval')
+            (self.hidden_eval, '.mmnlu22')
         ]:
             if ds:
                 ds.save_to_disk(output_prefix+suf)
