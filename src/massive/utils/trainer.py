@@ -33,6 +33,8 @@ class MASSIVETrainer(transformers.Trainer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if not hasattr(self.args, 'locale_eval_strategy'):
+            self.args.locale_eval_strategy = 'all only'
 
     def evaluate(self, eval_dataset=None, ignore_keys=None, metric_key_prefix='eval',
                  return_all_outputs=False):
@@ -112,7 +114,7 @@ class MASSIVETrainer(transformers.Trainer):
                 description="Evaluation",
                 # No point gathering the predictions if there are no metrics, otherwise we defer to
                 # self.args.prediction_loss_only
-                prediction_loss_only=True if self.compute_metrics is None else None,
+                #prediction_loss_only=True if self.compute_metrics is None else None,
                 ignore_keys=ignore_keys,
                 metric_key_prefix=metric_key_prefix,
             )
@@ -260,6 +262,8 @@ class MASSIVESeq2SeqTrainer(transformers.Seq2SeqTrainer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if not hasattr(self.args, 'locale_eval_strategy'):
+            self.args.locale_eval_strategy = 'all only'
 
     def evaluate(self, eval_dataset=None, ignore_keys=None, metric_key_prefix='eval',
                  max_length=None, num_beams=None, return_all_outputs=False):
@@ -345,7 +349,7 @@ class MASSIVESeq2SeqTrainer(transformers.Seq2SeqTrainer):
                 description="Evaluation",
                 # No point gathering the predictions if there are no metrics, otherwise we defer to
                 # self.args.prediction_loss_only
-                prediction_loss_only=True if self.compute_metrics is None else None,
+                #prediction_loss_only=True if self.compute_metrics is None else None,
                 ignore_keys=ignore_keys,
                 metric_key_prefix=metric_key_prefix,
             )
