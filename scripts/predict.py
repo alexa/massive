@@ -105,9 +105,8 @@ def main():
     rank = dist.get_rank() if dist.is_initialized() else 0
 
     if rank == 0:
-        save_to_file = True if conf.get('test.predictions_file') else False
         output_predictions(outputs, intents, slots, conf, tokenizer,
-                           remove_slots=slots_ignore, save_to_file=save_to_file)
+                           remove_slots=slots_ignore, save_to_file=True)
 
 if __name__ == "__main__":
     main()

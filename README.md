@@ -292,6 +292,8 @@ Or on older PyTorch versions:
 python -m torch.distributed.launch --nproc_per_node=8 scripts/predict.py -c PATH/TO/YOUR/CONFIG.yml 2>&1 | tee PATH/TO/LOG
 ```
 
+Upload results to the [MMNLU-22 Phase](https://eval.ai/web/challenges/challenge-page/1697/overview) on eval.ai.
+
 ## Hyperparameter Tuning
 
 Hyperparameter tuning can be performed using the `Trainer` from `transformers`. Similarly to training, we combine all configurations into a single yaml file. An example is given here: `example/xlmr_base_hptuning_20220411.yml`.

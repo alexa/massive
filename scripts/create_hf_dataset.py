@@ -257,8 +257,7 @@ class DatasetCreator:
         self.dev = self.dev.map(create_numeric_labels) if self.dev else None
         self.test = self.test.map(create_numeric_labels) if self.test else None
         if self.hidden_eval[0]['intent_str']:
-            self.hidden_eval = self.hidden_eval.map(create_numeric_labels) if self.hidden_eval \
-                                                                           else None
+            self.hidden_eval = self.hidden_eval.map(create_numeric_labels)
 
     def save_label_dicts(self, output_prefix):
         """
