@@ -4,7 +4,8 @@
 
 ## News
 
-* 29 Jul 2022: We have extended the deadline for MMNLU-22 evaluation to Sep 2nd. Additionally, besides the winners of the “full dataset” and “zero-shot” categories, we plan to select one team (“organizer’s choice award”) to present their findings at the workshop. This choice will be made based on the promise of the approach, not just on model evaluation scores.
+* **30 Jul:** Based on compelling feedback, we have updated our rules as follows: Contestants for the top-scoring model awards must submit their predictions on the evaluation set by the original deadline of Aug 8th. Contestants for the "organizers' choice award" can submit their predictions until Sep 2nd. The organizers' choice award will be based primarily on the promise of the approach, but we will also consider evaluation scores.
+* 29 Jul 2022: (Outdated -- see above) We have extended the deadline for MMNLU-22 evaluation to Sep 2nd. Additionally, besides the winners of the “full dataset” and “zero-shot” categories, we plan to select one team (“organizer’s choice award”) to present their findings at the workshop. This choice will be made based on the promise of the approach, not just on model evaluation scores.
 * 25 Jul 2022: The unlabeled evaluation set for the [Massively Multilingual NLU 2022 Competition](https://mmnlu-22.github.io/Competition/) has been released. Please note that (1) the eval data is unlabeled, meaning that the keys `scenario`, `intent`, and `annot_utt` are not present, as well as any judgment data, and (2) the intent and slot maps from your previous training run should be used when creating a new huggingface-style dataset using `create_hf_dataset.py`. More details can be found in the section with heading "MMNLU-22 Eval" below.
 
 ## Quick Links
