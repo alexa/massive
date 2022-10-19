@@ -267,7 +267,8 @@ class DatasetCreator:
         :type output_prefix: str
         """
 
-        with open(output_prefix+'.intents', "w") as i, open(output_prefix+'.slots', "w") as s:
+        with open(os.path.join(output_prefix, '.intents'), "w") as i,\
+             open(os.path.join(output_prefix, '.slots'), "w") as s:
             # swap the keys and vals to use the index as key and slot as val
             json.dump({v: k for k, v in self.intent_dict.items()}, i)
             json.dump({v: k for k, v in self.slot_dict.items()}, s)
@@ -286,7 +287,7 @@ class DatasetCreator:
             (self.hidden_eval, '.mmnlu22')
         ]:
             if ds:
-                ds.save_to_disk(output_prefix+suf)
+                ds.save_to_disk(os.path.join(output_prefix, suf))
 
 
 def isascii(s):
