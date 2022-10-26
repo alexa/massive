@@ -230,7 +230,7 @@ class DatasetCreator:
                   self.intent_dict)
         else:
             # swap key and val
-            self.intent_dict = {v: k for k, v in self.intent_dict.items()}
+            self.intent_dict = {v: int(k) for k, v in self.intent_dict.items()}
 
         if not self.slot_dict:
             # Get the unique slots and create a mapping dict
@@ -243,7 +243,7 @@ class DatasetCreator:
             print('The following slot labels were detected across all partitions: ', self.slot_dict)
         else:
             # swap key and val
-            self.slot_dict = {v: k for k, v in self.slot_dict.items()}
+            self.slot_dict = {v: int(k) for k, v in self.slot_dict.items()}
 
         # Define a function for creating numeric labels from existing text labels
         def create_numeric_labels(example):
