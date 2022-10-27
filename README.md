@@ -4,6 +4,7 @@
 
 ## News
 
+* **26 Oct:** We are pleased to declare Maxime De Bruyn, Ehsan Lotfi, Jeska Buhmann, and Walter Daelemans of the `bolleke` team as the winners of the Organizers' Choice Award! Please come to [our workshop](https://mmnlu-22.github.io/) to hear more about their model and their associated paper, Machine Translation for Multilingual Intent Detection and Slots Filling.
 * **12 Aug:** We welcome submissions until Sep 2nd for the MMNLU-22 Organizers’ Choice Award, as well as direct [paper submissions](https://mmnlu-22.github.io/Calls/) until Sep 7th. The Organizers’ Choice Award is based primarily on our assessment of the promise of an approach, not only on the evaluation scores. To be eligible, please (a) make a submission on [eval.ai](https://eval.ai/web/challenges/challenge-page/1697/overview) to either MMNLU-22 task and (b) send a brief (<1 page) writeup of your approach to `mmnlu-22@amazon.com` describing the following:
   * Your architecture,
   * Any changes to training data, use of non-public data, or use of public data,
