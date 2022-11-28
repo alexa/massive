@@ -3,17 +3,8 @@
 :point_right: Join the MMNLU-22 [slack workspace](https://join.slack.com/t/mmnlu-22/shared_invite/zt-1c5p3d3hw-8Ou0QJahOUrEzt5YDYl5Dw) here :point_left:
 
 ## News
-
-* **26 Oct:** We are pleased to declare Maxime De Bruyn, Ehsan Lotfi, Jeska Buhmann, and Walter Daelemans of the `bolleke` team as the winners of the Organizers' Choice Award! Please come to [our workshop](https://mmnlu-22.github.io/) to hear more about their model and their associated paper, Machine Translation for Multilingual Intent Detection and Slots Filling.
-* **12 Aug:** We welcome submissions until Sep 2nd for the MMNLU-22 Organizers’ Choice Award, as well as direct [paper submissions](https://mmnlu-22.github.io/Calls/) until Sep 7th. The Organizers’ Choice Award is based primarily on our assessment of the promise of an approach, not only on the evaluation scores. To be eligible, please (a) make a submission on [eval.ai](https://eval.ai/web/challenges/challenge-page/1697/overview) to either MMNLU-22 task and (b) send a brief (<1 page) writeup of your approach to `mmnlu-22@amazon.com` describing the following:
-  * Your architecture,
-  * Any changes to training data, use of non-public data, or use of public data,
-  * How dev data was used and what hyperparameter tuning was performed,
-  * Model input and output formats,
-  * What tools and libraries you used, and
-  * Any additional training techniques you used, such as knowledge distillation.
-* **12 Aug:** We are pleased to declare the **HIT-SCIR** team as the winner of the MMNLU-22 Competition [**Full Dataset Task**](https://eval.ai/web/challenges/challenge-page/1697/leaderboard/4060). Congratulations to Bo Zheng, Zhuoyang Li, Fuxuan Wei, Qiguang Chen, Libo Qin, and Wanxiang Che from the [Research Center for Social Computing and Information Retrieval, Harbin Institute of Technology](http://ir.hit.edu.cn/). The team has been invited to speak at the MMNLU-22 workshop on Dec 7th, where you can learn more about their approach.
-* **12 Aug:** We are pleased to declare the **FabT5** team as the winner of the MMNLU-22 Competition [**Zero-Shot Task**](https://eval.ai/web/challenges/challenge-page/1697/leaderboard/4061). Congratulations to Massimo Nicosia and Francesco Piccinno from Google. They have been invited to speak at the MMNLU-22 workshop on Dec 7th, where you can learn more about their approach.
+* **Nov 28:** We are pleased to announce the release of MASSIVE 1.1, which includes Catalan data. For instructions on using the dataset, please see below. Data for languages other than Catalan are unchanged versus MASSIVE 1.0, and the leaderboards on eval.ai still use MASSIVE 1.0 (for now, at least). We hope that you will leverage the new Catalan data for your work!
+* Please join us at the Massively Multilingual NLU 2022 workshop, collocated at EMNLP, on Dec 7th. Registration details are [here](https://2022.emnlp.org/registration/).
 
 ## Quick Links
 
@@ -24,11 +15,11 @@
 
 ## Introduction
 
-MASSIVE is a parallel dataset of > 1M utterances across 51 languages with annotations for the Natural Language Understanding tasks of intent prediction and slot annotation. Utterances span 60 intents and include 55 slot types. MASSIVE was created by localizing the [SLURP](https://github.com/pswietojanski/slurp) dataset, composed of general Intelligent Voice Assistant single-shot interactions.
+MASSIVE is a parallel dataset of > 1M utterances across 52 languages with annotations for the Natural Language Understanding tasks of intent prediction and slot annotation. Utterances span 60 intents and include 55 slot types. MASSIVE was created by localizing the [SLURP](https://github.com/pswietojanski/slurp) dataset, composed of general Intelligent Voice Assistant single-shot interactions.
 
 ## Accessing and Processing the Data
 
-The dataset can be downloaded [here](https://amazon-massive-nlu-dataset.s3.amazonaws.com/amazon-massive-dataset-1.0.tar.gz).
+MASSIVE 1.0, the dataset used in the paper, can be downloaded [here](https://amazon-massive-nlu-dataset.s3.amazonaws.com/amazon-massive-dataset-1.0.tar.gz). MASSIVE 1.1, which includes Catalan in addition to the 51 languages of MASSIVE 1.0, can be downloaded [here](https://amazon-massive-nlu-dataset.s3.amazonaws.com/amazon-massive-dataset-1.1.tar.gz).
 
 The unlabeled MMNLU-22 eval data can be downloaded [here](https://amazon-massive-nlu-dataset.s3.amazonaws.com/amazon-massive-dataset-heldout-MMNLU-1.0.tar.gz)
 
@@ -351,6 +342,16 @@ SLURP paper:
 
 ## Old News
 
+* **26 Oct:** We are pleased to declare Maxime De Bruyn, Ehsan Lotfi, Jeska Buhmann, and Walter Daelemans of the `bolleke` team as the winners of the Organizers' Choice Award! Please come to [our workshop](https://mmnlu-22.github.io/) to hear more about their model and their associated paper, Machine Translation for Multilingual Intent Detection and Slots Filling.
+* **12 Aug:** We welcome submissions until Sep 2nd for the MMNLU-22 Organizers’ Choice Award, as well as direct [paper submissions](https://mmnlu-22.github.io/Calls/) until Sep 7th. The Organizers’ Choice Award is based primarily on our assessment of the promise of an approach, not only on the evaluation scores. To be eligible, please (a) make a submission on [eval.ai](https://eval.ai/web/challenges/challenge-page/1697/overview) to either MMNLU-22 task and (b) send a brief (<1 page) writeup of your approach to `mmnlu-22@amazon.com` describing the following:
+  * Your architecture,
+  * Any changes to training data, use of non-public data, or use of public data,
+  * How dev data was used and what hyperparameter tuning was performed,
+  * Model input and output formats,
+  * What tools and libraries you used, and
+  * Any additional training techniques you used, such as knowledge distillation.
+* **12 Aug:** We are pleased to declare the **HIT-SCIR** team as the winner of the MMNLU-22 Competition [**Full Dataset Task**](https://eval.ai/web/challenges/challenge-page/1697/leaderboard/4060). Congratulations to Bo Zheng, Zhuoyang Li, Fuxuan Wei, Qiguang Chen, Libo Qin, and Wanxiang Che from the [Research Center for Social Computing and Information Retrieval, Harbin Institute of Technology](http://ir.hit.edu.cn/). The team has been invited to speak at the MMNLU-22 workshop on Dec 7th, where you can learn more about their approach.
+* **12 Aug:** We are pleased to declare the **FabT5** team as the winner of the MMNLU-22 Competition [**Zero-Shot Task**](https://eval.ai/web/challenges/challenge-page/1697/leaderboard/4061). Congratulations to Massimo Nicosia and Francesco Piccinno from Google. They have been invited to speak at the MMNLU-22 workshop on Dec 7th, where you can learn more about their approach.
 * **30 Jul:** Based on compelling feedback, we have updated our rules as follows: Contestants for the top-scoring model awards must submit their predictions on the evaluation set by the original deadline of Aug 8th. Contestants for the "organizers' choice award" can submit their predictions until Sep 2nd. The organizers' choice award will be based primarily on the promise of the approach, but we will also consider evaluation scores.
 * 29 Jul 2022: (Outdated -- see above) We have extended the deadline for MMNLU-22 evaluation to Sep 2nd. Additionally, besides the winners of the “full dataset” and “zero-shot” categories, we plan to select one team (“organizer’s choice award”) to present their findings at the workshop. This choice will be made based on the promise of the approach, not just on model evaluation scores.
 * 25 Jul 2022: The unlabeled evaluation set for the [Massively Multilingual NLU 2022 Competition](https://mmnlu-22.github.io/Competition/) has been released. Please note that (1) the eval data is unlabeled, meaning that the keys `scenario`, `intent`, and `annot_utt` are not present, as well as any judgment data, and (2) the intent and slot maps from your previous training run should be used when creating a new huggingface-style dataset using `create_hf_dataset.py`. More details can be found in the section with heading "MMNLU-22 Eval" below.
